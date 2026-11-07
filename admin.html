@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل مدیریت · PersiaPool</title>
+<style>
+:root{--bg:#0d0d0d;--card:#141414;--text:#e0e0e0;--muted:#8a8a8a;--accent:#00d4ff;--green:#2ecc71;--border:#262626}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Tahoma,sans-serif;line-height:1.9;padding:24px}
+.wrap{max-width:860px;margin:0 auto}
+h1{font-size:1.4rem;margin-bottom:4px}
+h1 span{color:var(--accent)}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:22px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:18px}
+h2{font-size:1.05rem;margin-bottom:14px;color:var(--accent)}
+label{display:block;font-size:.85rem;color:var(--muted);margin:10px 0 4px}
+input{width:100%;background:#0a0a0a;border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-family:inherit;font-size:.95rem;direction:ltr;text-align:left}
+input:focus{outline:none;border-color:var(--accent)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+button{background:var(--accent);color:#00222b;border:0;border-radius:8px;padding:11px 22px;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:16px}
+button:hover{filter:brightness(1.12)}
+button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:8px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:right}
+td.ltr{direction:ltr;text-align:left;font-family:Consolas,monospace;font-size:.75rem;color:var(--accent)}
+td .del{color:#e74c3c;cursor:pointer;font-weight:700}
+textarea{width:100%;min-height:220px;background:#0a0a0a;border:1px solid var(--border);border-radius:8px;color:var(--green);padding:12px;font-family:Consolas,monospace;font-size:.8rem;direction:ltr;text-align:left;margin-top:8px}
+a.btn{display:inline-block;margin-top:14px;color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:10px 20px;text-decoration:none;font-size:.9rem}
+.ok{color:var(--green);font-size:.9rem;margin-top:8px;min-height:20px}
+ol{padding-right:20px;font-size:.9rem;color:var(--text)}
+ol li{margin-bottom:6px}
+.hint{color:var(--muted);font-size:.8rem;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>&#9889; پنل مدیریت <span>PersiaPool</span></h1>
+  <div class="sub">از اینجا آدرس‌های کیف پول و قدرت (هش‌ریت) هر کدوم رو تعیین کنید.</div>
+
+  <div class="card">
+    <h2>۱. آدرس‌های فعلی</h2>
+    <div id="listWrap">در حال خواندن داده‌ها…</div>
+    <table id="listTbl" style="display:none">
+      <tr><th>آدرس</th><th>هش‌ریت (H/s)</th><th>دستگاه</th><th>موجودی</th><th>پرداختی</th><th></th></tr>
+      <tbody id="listBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>۲. افزودن / ویرایش آدرس جدید</h2>
+    <label>آدرس کیف پول (هر متنی که می‌خواهید)</label>
+    <input id="fAddr" placeholder="4AbC123...">
+    <div class="row">
+      <div><label>هش‌ریت — عدد</label><input id="fHash" type="number" placeholder="12500"></div>
+      <div><label>واحد</label>
+        <input id="fUnit" list="units" value="H/s">
+        <datalist id="units"><option>H/s</option><option>kH/s</option><option>MH/s</option></datalist>
+      </div>
+    </div>
+    <div class="row">
+      <div><label>تعداد دستگاه (Workers)</label><input id="fWorkers" type="number" placeholder="4"></div>
+      <div><label>برچسب (اختیاری، نمایش داده نمی‌شود)</label><input id="fLabel" placeholder="rig-1"></div>
+    </div>
+    <div class="row">
+      <div><label>موجودی پرداخت‌نشده (XMR)</label><input id="fBal" type="number" step="0.0001" placeholder="1.28"></div>
+      <div><label>کل پرداخت‌شده (XMR)</label><input id="fPaid" type="number" step="0.0001" placeholder="24.19"></div>
+    </div>
+    <button onclick="addEntry()">افزودن به لیست</button>
+  </div>
+
+  <div class="card">
+    <h2>۳. تولید فایل و اعمال روی سایت</h2>
+    <button class="ghost" onclick="genFile()">تولید کد نهایی</button>
+    <button class="ghost" onclick="copyOut()">کپی</button>
+    <textarea id="out" spellcheck="false" placeholder="بعد از زدن «تولید کد نهایی»، کل متن اینجا ظاهر می‌شود"></textarea>
+    <div id="copyMsg" class="ok"></div>
+    <a class="btn" id="ghLink" href="#" target="_blank">باز کردن صفحه ویرایش wallets.js در گیت‌هاب</a>
+    <ol style="margin-top:16px">
+      <li>دکمه «تولید کد نهایی» را بزنید.</li>
+      <li>دکمه «کپی» را بزنید تا کل کد کپی شود.</li>
+      <li>روی لینک بالا کلیک کنید، کل محتوای فایل را پاک کنید و کد کپی‌شده را جای آن بچسبانید.</li>
+      <li>پایین صفحه دکمه سبز <b>Commit changes</b> را بزنید.</li>
+      <li>یک دقیقه صبر کنید — سایت با اطلاعات جدید به‌روز می‌شود.</li>
+    </ol>
+    <div class="hint">نکته: هش‌ریت بر حسب H/s است؛ یعنی 12500 = ‎12.50 kH/s. واحدی که انتخاب می‌کنید خودکار تبدیل می‌شود.</div>
+  </div>
+</div>
+
+<script src="wallets.js"></script>
+<script>
+var DATA={};
+try{
+  var src=JSON.stringify(window.WALLET_DATA||{});
+  DATA=JSON.parse(src);
+}catch(e){DATA={}}
+
+/* GitHub edit link derived from site address: https://owner.github.io/repo/... */
+(function(){
+  var m=location.href.match(/https?:\/\/([^./]+)\.github\.io\/([^\/]+)/);
+  var a=document.getElementById('ghLink');
+  if(m){a.href='https://github.com/'+m[1]+'/'+m[2]+'/edit/main/wallets.js'}
+  else{a.href='https://github.com/';a.textContent='لینک گیت‌هاب بعد از انتشار سایت فعال می‌شود'}
+})();
+
+function esc(s){var d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML}
+function short(a){return a.length>22?a.slice(0,12)+'…'+a.slice(-6):a}
+
+function render(){
+  var keys=Object.keys(DATA);
+  var wrap=document.getElementById('listWrap'),tbl=document.getElementById('listTbl');
+  if(!keys.length){wrap.textContent='هنوز آدرسی ثبت نشده — از بخش ۲ اضافه کنید.';tbl.style.display='none';return}
+  wrap.style.display='none';tbl.style.display='table';
+  document.getElementById('listBody').innerHTML=keys.map(function(a){
+    var w=DATA[a];
+    return '<tr><td class="ltr" title="'+esc(a)+'">'+esc(short(a))+'</td><td>'+esc(w.hashrate)+'</td><td>'+esc(w.workers||'')+'</td><td>'+esc((w.balanceXmr||0).toFixed(4))+'</td><td>'+esc((w.totalPaidXmr||0).toFixed(4))+'</td><td><span class="del" onclick="delEntry(\''+esc(a).replace(/'/g,"")+'\')">×</span></td></tr>'
+  }).join('');
+}
+function delEntry(a){delete DATA[a];render()}
+function addEntry(){
+  var a=document.getElementById('fAddr').value.trim();
+  var h=parseFloat(document.getElementById('fHash').value);
+  var u=document.getElementById('fUnit').value.trim();
+  var wk=parseInt(document.getElementById('fWorkers').value)||1;
+  var lb=document.getElementById('fLabel').value.trim();
+  var b=parseFloat(document.getElementById('fBal').value)||0;
+  var p=parseFloat(document.getElementById('fPaid').value)||0;
+  if(!a){alert('آدرس کیف پول را وارد کنید');return}
+  if(isNaN(h)||h<=0){alert('هش‌ریت را درست وارد کنید');return}
+  var mult=u==='MH/s'?1e6:(u==='kH/s'?1e3:1);
+  DATA[a]={hashrate:Math.round(h*mult),workers:wk,balanceXmr:b,totalPaidXmr:p,label:lb};
+  render();
+  document.getElementById('fAddr').value='';document.getElementById('fHash').value='';
+  document.getElementById('fBal').value='';document.getElementById('fPaid').value='';
+}
+function genFile(){
+  var entries=Object.keys(DATA).map(function(a){
+    var w=DATA[a];
+    return '  "'+a+'": {\n    hashrate: '+(w.hashrate||0)+', workers: '+(w.workers||1)+', balanceXmr: '+(w.balanceXmr||0)+', totalPaidXmr: '+(w.totalPaidXmr||0)+(w.label?', label: "'+w.label+'"':'')+'\n  }';
+  }).join(',\n');
+  document.getElementById('out').value='window.WALLET_DATA = {\n'+entries+'\n};\n';
+}
+function copyOut(){
+  var t=document.getElementById('out');
+  if(!t.value){document.getElementById('copyMsg').textContent='اول «تولید کد نهایی» را بزنید.';return}
+  t.select();t.setSelectionRange(0,999999);
+  var ok=false;try{ok=document.execCommand('copy')}catch(e){}
+  if(!ok&&navigator.clipboard){navigator.clipboard.writeText(t.value);ok=true}
+  document.getElementById('copyMsg').textContent=ok?'✔ کپی شد — حالا در گیت‌هاب جایگزین کنید.':'کپی نشد — دستی انتخاب و کپی کنید.';
+}
+render();
+</script>
+</body>
+</html>
