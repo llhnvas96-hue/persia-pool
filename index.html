@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home · PersiaPool</title>
+<style>
+:root{
+  --bg:#0d0d0d; --card:#141414; --card2:#1a1a1a;
+  --text:#e0e0e0; --muted:#8a8a8a; --accent:#00d4ff;
+  --green:#2ecc71; --border:#262626;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  line-height:1.6; min-height:100vh; display:flex; flex-direction:column;
+}
+.container{max-width:1100px;margin:0 auto;padding:0 20px;width:100%}
+
+/* ===== Header ===== */
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(13,13,13,.85);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-size:1.35rem;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;letter-spacing:.3px}
+.logo .bolt{color:var(--accent);font-size:1.5rem}
+.logo em{font-style:normal;color:var(--accent)}
+nav.menu a{color:var(--muted);text-decoration:none;margin-left:26px;font-size:.95rem;transition:color .2s}
+nav.menu a:hover{color:var(--text)}
+
+/* ===== Hero / search ===== */
+.hero{padding:72px 0 56px;text-align:center;background:
+  radial-gradient(ellipse 60% 50% at 50% -10%,rgba(0,212,255,.08),transparent 70%)}
+.hero h1{font-size:2.4rem;font-weight:700;margin-bottom:10px}
+.hero h1 span{color:var(--accent)}
+.hero .sub{color:var(--muted);font-size:1.05rem;margin-bottom:34px}
+.search-box{display:flex;max-width:640px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.search-box input{flex:1;background:transparent;border:0;outline:0;color:var(--text);padding:14px 18px;font-size:1rem;font-family:inherit}
+.search-box input::placeholder{color:#5a5a5a}
+.search-box button{background:var(--accent);color:#00222b;border:0;padding:0 30px;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit;transition:filter .2s}
+.search-box button:hover{filter:brightness(1.12)}
+.msg{margin-top:14px;font-size:.95rem;min-height:24px}
+.msg.err{color:#e67e22}
+.msg.ok{color:var(--green)}
+
+/* ===== Cards ===== */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:34px 0 8px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 22px;text-align:center}
+.card .val{font-size:1.45rem;font-weight:700;color:var(--accent)}
+.card .val.green{color:var(--green)}
+.card .lbl{color:var(--muted);font-size:.85rem;margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ===== Sections ===== */
+section.block{padding:44px 0}
+section.block h2{font-size:1.5rem;margin-bottom:22px}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+.result-wrap{display:none}
+.result-wrap.show{display:block}
+
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-top:18px}
+#hashChart{width:100%;height:240px;display:block;cursor:crosshair}
+#chartTip{position:absolute;pointer-events:none;background:#0a0a0a;border:1px solid var(--accent);border-radius:6px;padding:6px 10px;font-size:.78rem;display:none;z-index:5;white-space:nowrap;transform:translate(-50%,-100%);text-align:center;line-height:1.5}
+#chartTip b{color:var(--accent)}
+#chartTip .t{color:var(--muted);font-size:.7rem}
+#chartCross{position:absolute;width:1px;background:rgba(0,212,255,.45);display:none;pointer-events:none}
+
+table{width:100%;border-collapse:collapse;margin-top:18px;font-size:.92rem}
+th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px}
+td.mono{font-family:Consolas,monospace;font-size:.85rem;color:var(--accent);text-decoration:none}
+td .amt{color:var(--green);font-weight:600}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.step{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px}
+.step .num{display:inline-flex;width:34px;height:34px;border-radius:50%;background:rgba(0,212,255,.12);color:var(--accent);align-items:center;justify-content:center;font-weight:700;margin-bottom:12px}
+.step h3{font-size:1.05rem;margin-bottom:8px}
+.step p{color:var(--muted);font-size:.9rem}
+.step code{display:block;margin-top:10px;background:#0a0a0a;border:1px solid var(--border);border-radius:6px;padding:10px;font-family:Consolas,monospace;font-size:.8rem;color:var(--accent);word-break:break-all;direction:ltr;text-align:left}
+
+/* ===== Footer ===== */
+footer{margin-top:auto;border-top:1px solid var(--border);padding:34px 0;color:var(--muted);font-size:.88rem}
+footer .cols{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--accent)}
+footer .fine{margin-top:22px;font-size:.78rem;color:#5a5a5a}
+
+@media(max-width:640px){
+  .hero h1{font-size:1.7rem}
+  nav.menu a{margin-left:14px;font-size:.85rem}
+  .search-box button{padding:0 18px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a class="logo" href="/"><span class="bolt">&#9889;</span>Persia<em>Pool</em></a>
+    <nav class="menu">
+      <a href="#stats">Pool Stats</a>
+      <a href="#how">Get Started</a>
+      <a href="#payments">Payments</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <h1>Welcome to <span>PersiaPool</span></h1>
+    <p class="sub">High-performance Monero mining pool &middot; Low fees &middot; Regular payouts</p>
+    <div class="search-box">
+      <input id="walletInput" placeholder="Enter your wallet address" spellcheck="false" autocomplete="off">
+      <button onclick="lookup()">Check</button>
+    </div>
+    <div id="searchMsg" class="msg"></div>
+  </div>
+</section>
+
+<main class="container">
+
+  <!-- ===== Wallet result ===== -->
+  <div id="resultWrap" class="result-wrap">
+    <section class="block" id="walletStats">
+      <div class="section-head">
+        <h2>Worker Statistics</h2>
+        <span class="mono" id="walletAddr" style="color:var(--muted);font-family:Consolas,monospace;font-size:.8rem;word-break:break-all;direction:ltr"></span>
+      </div>
+      <div class="cards">
+        <div class="card"><div class="val" id="rHashrate">–</div><div class="lbl">Current Hashrate</div></div>
+        <div class="card"><div class="val" id="rWorkers">–</div><div class="lbl">Workers</div></div>
+        <div class="card"><div class="val green" id="rBalance">–</div><div class="lbl">Unpaid Balance</div></div>
+        <div class="card"><div class="val green" id="rPaid">–</div><div class="lbl">Total Paid</div></div>
+      </div>
+      <div class="chart-card" style="position:relative">
+        <div class="section-head"><h2 style="font-size:1.05rem">Hashrate &mdash; last 24 hours</h2></div>
+        <canvas id="hashChart"></canvas>
+        <div id="chartTip"></div>
+        <div id="chartCross"></div>
+      </div>
+      <div id="payments"></div>
+    </section>
+  </div>
+
+  <!-- ===== Pool stats ===== -->
+  <section class="block" id="stats">
+    <h2>Pool Statistics</h2>
+    <div class="cards">
+      <div class="card"><div class="val" id="poolHashrate">–</div><div class="lbl">Pool Hashrate</div></div>
+      <div class="card"><div class="val" id="poolMiners">–</div><div class="lbl">Miners Online</div></div>
+      <div class="card"><div class="val" id="poolWorkers">–</div><div class="lbl">Workers</div></div>
+      <div class="card"><div class="val">1%</div><div class="lbl">Pool Fee</div></div>
+      <div class="card"><div class="val">3.21 MH/s</div><div class="lbl">Network Hashrate</div></div>
+      <div class="card"><div class="val">2 min</div><div class="lbl">Block Time</div></div>
+    </div>
+  </section>
+
+  <!-- ===== How to start ===== -->
+  <section class="block" id="how">
+    <h2>Get Started in 3 Steps</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <h3>Get a wallet</h3>
+        <p>Create a Monero wallet to receive your payouts. Any official wallet works.</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h3>Configure your miner</h3>
+        <p>Point your miner to the pool with this configuration:</p>
+        <code>pool.persiapool.example:3333<br>-u YOUR_WALLET_ADDRESS<br>-p x</code>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h3>Start mining</h3>
+        <p>Run the miner and check your stats on this page by entering your wallet address above.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="cols">
+      <div>&#9889; <strong style="color:var(--text)">PersiaPool</strong><br>A demo mining-pool dashboard.</div>
+      <div>
+        <a href="#stats">Pool Stats</a><br>
+        <a href="#how">Get Started</a><br>
+        <a href="admin.html">Admin Panel</a>
+      </div>
+    </div>
+    <div class="fine">&copy; 2026 PersiaPool &middot; Demo project &middot; Not affiliated with any real mining pool.</div>
+  </div>
+</footer>
+
+<script src="wallets.js"></script>
+<script>
+/* ---------- helpers ---------- */
+function seedFrom(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function makeRng(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fmtHR(hs){if(hs>=1e9)return(hs/1e9).toFixed(2)+' GH/s';if(hs>=1e6)return(hs/1e6).toFixed(2)+' MH/s';if(hs>=1e3)return(hs/1e3).toFixed(2)+' kH/s';return Math.round(hs)+' H/s'}
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+var DATA=(window.WALLET_DATA||{});
+
+/* ---------- pool stats ---------- */
+(function(){
+  var th=0,tm=0,tw=0;
+  Object.keys(DATA).forEach(function(a){th+=DATA[a].hashrate||0;tm++;tw+=DATA[a].workers||0});
+  document.getElementById('poolHashrate').textContent=fmtHR(th);
+  document.getElementById('poolMiners').textContent=tm;
+  document.getElementById('poolWorkers').textContent=tw;
+})();
+
+/* ---------- search ---------- */
+function lookup(){
+  var inp=document.getElementById('walletInput');
+  var msg=document.getElementById('searchMsg');
+  var wrap=document.getElementById('resultWrap');
+  var addr=(inp.value||'').trim();
+  msg.className='msg';msg.textContent='';
+  if(!addr){msg.className='msg err';msg.textContent='Please enter a wallet address.';return}
+  var w=DATA[addr];
+  if(!w){wrap.classList.remove('show');msg.className='msg err';msg.textContent='No worker found for this address. Check the address and try again.';return}
+  msg.className='msg ok';msg.textContent='Worker found — showing statistics.';
+  wrap.classList.add('show');
+  document.getElementById('walletAddr').textContent=addr;
+  document.getElementById('rHashrate').textContent=fmtHR(w.hashrate||0);
+  document.getElementById('rWorkers').textContent=w.workers!=null?w.workers:'–';
+  document.getElementById('rBalance').textContent=(w.balanceXmr!=null?w.balanceXmr.toFixed(4):'–')+' XMR';
+  document.getElementById('rPaid').textContent=(w.totalPaidXmr!=null?w.totalPaidXmr.toFixed(4):'–')+' XMR';
+  drawChart(addr,w.hashrate||0);
+  renderPayments(addr,w.totalPaidXmr||0);
+  document.getElementById('walletStats').scrollIntoView({behavior:'smooth',block:'start'});
+}
+document.getElementById('walletInput').addEventListener('keydown',function(e){if(e.key==='Enter')lookup()});
+
+/* ---------- chart ---------- */
+var CHART_STATE=null;
+/* realistic series: plateaus, worker-restart dips, recovery ramps (deterministic per address) */
+function genSeries(seed,base){
+  var rng=makeRng(seed),N=96,pts=[],i=0,level=base*(0.55+rng()*0.35);
+  while(i<N){
+    var len=8+Math.floor(rng()*16);
+    var target=base*(0.7+rng()*0.45);
+    var dip=(rng()<0.20),dipLen=2+Math.floor(rng()*4),dipDepth=base*(0.22+rng()*0.38);
+    for(var j=0;j<len&&i<N;j++,i++){
+      level+=(target-level)*0.25;
+      var v=level*(1+(rng()-0.5)*0.08);
+      if(dip&&j<dipLen)v=dipDepth*(1+(rng()-0.5)*0.1);
+      pts.push(Math.max(0,v));
+    }
+  }
+  var start=N-9,from=pts[start];
+  for(var k=start+1;k<N;k++)pts[k]=from+(base-from)*((k-start)/(N-1-start));
+  pts[N-1]=base;
+  return pts;
+}
+function drawChart(addr,base){
+  var c=document.getElementById('hashChart');
+  var dpr=window.devicePixelRatio||1;
+  var W=c.clientWidth||800,H=240;
+  c.width=W*dpr;c.height=H*dpr;
+  c.style.width=W+'px';c.style.height=H+'px';
+  var ctx=c.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
+  var N=96,pts=genSeries(seedFrom(addr+'|chart'),base);
+  var max=Math.max.apply(null,pts)*1.15||1;
+  var padL=54,padR=10,padT=14,padB=24;
+  var iw=W-padL-padR,ih=H-padT-padB;
+  function X(i){return padL+i/(N-1)*iw}
+  function Y(v){return padT+ih-(v/max)*ih}
+  /* grid + y labels */
+  ctx.strokeStyle='#222';ctx.fillStyle='#666';ctx.font='10px Segoe UI';ctx.lineWidth=1;
+  for(var g=0;g<=4;g++){var gy=padT+ih*g/4;ctx.beginPath();ctx.moveTo(padL,gy);ctx.lineTo(W-padR,gy);ctx.stroke();ctx.fillText(fmtHR(max*(1-g/4)),2,gy+3)}
+  /* x labels every 6 points = every 1.5h */
+  for(var xb=0;xb<N;xb+=24){
+    var lbl=xb===0?'-24h':(xb===N-1?'now':'-'+((N-1-xb)/4|0)+'h');
+    ctx.fillText(lbl,Math.min(X(xb),W-padR-26),H-8);
+  }
+  ctx.fillText('now',W-padR-22,H-8);
+  /* smooth path helper */
+  function path(){
+    ctx.beginPath();ctx.moveTo(X(0),Y(pts[0]));
+    for(var k=1;k<N;k++){var xm=(X(k-1)+X(k))/2,ym=(Y(pts[k-1])+Y(pts[k]))/2;ctx.quadraticCurveTo(X(k-1),Y(pts[k-1]),xm,ym)}
+    ctx.quadraticCurveTo(X(N-1),Y(pts[N-1]),X(N-1),Y(pts[N-1]));
+  }
+  /* area */
+  path();ctx.lineTo(X(N-1),H-padB);ctx.lineTo(X(0),H-padB);ctx.closePath();
+  var grad=ctx.createLinearGradient(0,padT,0,H-padB);
+  grad.addColorStop(0,'rgba(0,212,255,.30)');grad.addColorStop(1,'rgba(0,212,255,0)');
+  ctx.fillStyle=grad;ctx.fill();
+  /* line with glow */
+  ctx.shadowColor='rgba(0,212,255,.55)';ctx.shadowBlur=8;
+  path();ctx.strokeStyle='#00d4ff';ctx.lineWidth=2;ctx.stroke();
+  ctx.shadowBlur=0;
+  /* endpoint dot */
+  ctx.beginPath();ctx.arc(X(N-1),Y(pts[N-1]),3.5,0,6.283);ctx.fillStyle='#00d4ff';ctx.fill();
+  CHART_STATE={addr:addr,base:base,c:c,W:W,padL:padL,padR:padR,padT:padT,padB:padB,N:N,pts:pts,X:X,Y:Y};
+}
+/* tooltip */
+(function(){
+  var c=document.getElementById('hashChart'),tip=document.getElementById('chartTip'),cross=document.getElementById('chartCross');
+  c.addEventListener('mousemove',function(ev){
+    var st=CHART_STATE;if(!st)return;
+    var r=c.getBoundingClientRect();
+    var x=ev.clientX-r.left;
+    var t=(x-st.padL)/(st.W-st.padL-st.padR);t=t<0?0:(t>1?1:t);
+    var idx=Math.round(t*(st.N-1)),v=st.pts[idx];
+    var mins=(st.N-1-idx)*15;
+    var ago=mins>=60?(Math.floor(mins/60)+'h '+(mins%60)+'m'):(mins+'m');
+    tip.innerHTML='<b>'+fmtHR(v)+'</b><div class="t">'+ago+' ago</div>';
+    var px=st.X(idx)+c.offsetLeft;
+    tip.style.display='block';tip.style.left=px+'px';
+    tip.style.top=(c.offsetTop+st.Y(v)-8)+'px';
+    cross.style.display='block';cross.style.left=px+'px';
+    cross.style.top=c.offsetTop+'px';cross.style.height=c.clientHeight+'px';
+  });
+  c.addEventListener('mouseleave',function(){tip.style.display='none';cross.style.display='none'});
+})();
+/* redraw on resize */
+var _rsT;window.addEventListener('resize',function(){clearTimeout(_rsT);_rsT=setTimeout(function(){if(CHART_STATE)drawChart(CHART_STATE.addr,CHART_STATE.base)},150)});
+
+/* ---------- payments ---------- */
+function renderPayments(addr,totalPaid){
+  var rng=makeRng(seedFrom(addr+'|pay'));
+  var rows='',n=6,total=totalPaid||6;
+  for(var i=0;i<n;i++){
+    var d=new Date(Date.now()-(i*7+rng()*2)*864e5);
+    var ds=d.toISOString().slice(0,10)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    var amt=(total/n)*(0.75+rng()*.5);
+    var tx='';for(var h=0;h<64;h++)tx+='0123456789abcdef'[Math.floor(rng()*16)];
+    rows+='<tr><td>'+ds+'</td><td class="mono">'+tx.slice(0,18)+'&hellip;</td><td class="amt">'+amt.toFixed(4)+' XMR</td><td>unlocked</td></tr>';
+  }
+  document.getElementById('payments').innerHTML=
+    '<div class="chart-card" id="paymentsCard"><div class="section-head"><h2 style="font-size:1.05rem">Recent Payouts</h2></div>'+
+    '<table><tr><th>Time (UTC)</th><th>Transaction</th><th>Amount</th><th>Status</th></tr>'+rows+'</table></div>';
+}
+</script>
+</body>
+</html>
